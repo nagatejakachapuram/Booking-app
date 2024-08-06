@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Go Conference Booking</title>
+</head>
+<body>
+    <h1>Welcome to Go Conference Booking</h1>
+    <div id="greeting"></div>
+    <h2>Book Tickets</h2>
+    <form id="bookingForm">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required><br><br>
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required><br><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        <label for="userTickets">Number of Tickets:</label>
+        <input type="number" id="userTickets" name="userTickets" required><br><br>
+        <input type="submit" value="Book Tickets">
+    </form>
+    <div id="response"></div>
+    <h2>Bookings</h2>
+    <div id="bookings"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/greet')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('greeting').innerHTML = data.message;
+                });
+
+            fetch('/bookings')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('bookings').innerHTML = data.join(', ');
+                });
+
+            const form = document.getElementById('bookingForm');
+            form.addEventListener('submit', event => {
+                event.preventDefault();
+                const formData = new FormData(form);
+                const bookingData = {
+                    firstName: formData.get('firstName'),
+                    lastName: formData.get('lastName'),
+                    email: formData.get('email'),
+                    userTickets: formData.get('userTickets'),
+                };
+
+                fetch('/book', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bookingData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('response').innerHTML = data.message;
+                    fetch('/bookings')
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('bookings').innerHTML = data.join(', ');
+                        });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
